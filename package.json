@@ -6,7 +6,9 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "gen:types": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > src/types/supabase.ts",
+    "update:types": "npm run gen:types && npm run type-check"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",

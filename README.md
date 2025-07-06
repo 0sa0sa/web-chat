@@ -1,105 +1,230 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Chat Application
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
-
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+A real-time 1-on-1 chat application built with Next.js, Supabase, and shadcn/ui.
 
 ## Features
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+- 🔐 **Authentication** - Secure user signup/login
+- 💬 **1-on-1 Chat** - Direct messaging between users
+- ⚡ **Real-time** - Live message updates with Supabase Realtime
+- 🔍 **User Search** - Find and start conversations with other users
+- 🎨 **Modern UI** - Built with shadcn/ui components
+- 📱 **Responsive** - Works on desktop and mobile
+- 🛡️ **Secure** - Row Level Security (RLS) policies
 
-## Demo
+## Tech Stack
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- **Framework**: Next.js 15 with App Router
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
+- **Real-time**: Supabase Realtime
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS
+- **Language**: TypeScript
 
-## Deploy to Vercel
+## Quick Start
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### 1. Clone and Install
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+```bash
+git clone <your-repo>
+cd web-chat
+npm install
+```
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+### 2. Environment Setup
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+```bash
+# Copy environment template
+cp .env.example .env.local
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+# Edit .env.local with your Supabase credentials
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
 
-## Clone and run locally
+### 3. Database Setup
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+```sql
+-- Run in Supabase SQL Editor
+-- 1. Apply migrations
+\i supabase/final_chat_migration.sql
 
-2. Create a Next.js app using the Supabase Starter template npx command
+-- 2. Add seed data
+\i supabase/seed.sql
+```
 
+### 4. Create Test Users (Optional)
+
+```bash
+cd scripts
+npm install
+npm run create-users
+```
+
+### 5. Start Development
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000`
+
+## Scripts
+
+```bash
+# Development
+npm run dev              # Start dev server
+npm run build           # Build for production
+npm run start           # Start production server
+
+# Type Safety
+npm run type-check      # Run TypeScript checks
+npm run gen:types       # Generate Supabase types
+npm run update:types    # Update types + type check
+
+# Code Quality
+npm run lint            # ESLint
+npm run format          # Prettier
+
+# Testing
+cd scripts && npm run create-users  # Create test users
+```
+
+## Project Structure
+
+```
+├── app/                    # Next.js app router
+│   ├── auth/              # Authentication pages
+│   ├── chat/              # Chat pages
+│   └── protected/         # Protected routes
+├── components/            # React components
+│   ├── ui/               # shadcn/ui components
+│   └── *.tsx             # Custom components
+├── lib/                   # Utilities
+│   ├── supabase/         # Supabase client config
+│   ├── types/            # TypeScript definitions
+│   └── utils/            # Helper functions
+├── scripts/              # Development scripts
+│   ├── create-test-users.js
+│   └── generate-types.js
+└── supabase/             # Database migrations
+    ├── final_chat_migration.sql
+    └── seed.sql
+```
+
+## Database Schema
+
+### Tables
+
+- **`user_profiles`** - Extended user information
+- **`conversations`** - 1-on-1 chat rooms
+- **`messages`** - Chat messages
+- **`chat_rooms`** - Future group chat support
+
+### Key Features
+
+- **Row Level Security** - Users can only access their own data
+- **Real-time subscriptions** - Live updates for all tables
+- **Automatic triggers** - Profile creation, timestamp updates
+- **Foreign key relationships** - Data integrity
+
+## Development Workflow
+
+### Adding New Features
+
+1. **Database Changes**
+   ```sql
+   -- Add to supabase/final_chat_migration.sql
+   ALTER TABLE messages ADD COLUMN is_edited BOOLEAN DEFAULT false;
+   ```
+
+2. **Update Types**
    ```bash
-   npx create-next-app --example with-supabase with-supabase-app
+   npm run update:types
    ```
 
+3. **Implement Feature**
+   ```typescript
+   // Use generated types
+   import { Message } from '@/lib/types';
+   ```
+
+### Type Safety
+
+The project uses Supabase's generated TypeScript types:
+
+```typescript
+// Auto-generated from database schema
+export type Message = Database['public']['Tables']['messages']['Row'];
+
+// Extended for UI needs
+export interface MessageWithUser extends Message {
+  user?: {
+    email?: string;
+    display_name?: string;
+  };
+}
+```
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. **Deploy to Vercel**
    ```bash
-   yarn create next-app --example with-supabase with-supabase-app
+   npm i -g vercel
+   vercel --prod
    ```
 
+2. **Set Environment Variables**
    ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
+   vercel env add NEXT_PUBLIC_SUPABASE_URL
+   vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
    ```
 
-3. Use `cd` to change into the app's directory
+### Other Platforms
 
+- Update environment variables
+- Ensure Node.js 18+ support
+- Set build command: `npm run build`
+- Set start command: `npm run start`
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"Permission denied" errors**
+   - Check RLS policies in Supabase
+   - Verify user authentication
+
+2. **Type errors after schema changes**
    ```bash
-   cd with-supabase-app
+   npm run update:types
    ```
 
-4. Rename `.env.example` to `.env.local` and update the following:
+3. **Real-time not working**
+   - Check Supabase Realtime is enabled
+   - Verify table publications
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+4. **User profile not created**
+   - Check trigger functions
+   - Run seed script
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+### Getting Help
 
-5. You can now run the Next.js local development server:
+- Check [Supabase Documentation](https://supabase.com/docs)
+- Review error logs in browser console
+- Verify environment variables
 
-   ```bash
-   npm run dev
-   ```
+## Contributing
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run type checks: `npm run type-check`
+5. Submit a pull request
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+## License
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
-
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+This project is licensed under the MIT License.
