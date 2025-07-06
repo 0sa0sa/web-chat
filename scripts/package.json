@@ -1,0 +1,14 @@
+{
+  "name": "chat-test-scripts",
+  "version": "1.0.0",
+  "description": "Test scripts for chat application",
+  "type": "module",
+  "scripts": {
+    "create-users": "node create-test-users.js",
+    "help": "echo 'Available scripts: npm run create-users'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.3.1"
+  }
+}
