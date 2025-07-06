@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Chat System - 3D Architecture Viewer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2>🏗️ 3D Architecture Loading...</h2>
+            <p>Setting up interactive diagrams</p>
+        </div>
+    </div>
+
+    <div id="ui-container">
+        <header class="header">
+            <h1>🌟 Web Chat System - 3D Architecture</h1>
+            <p>Interactive 3D visualization of system architecture</p>
+        </header>
+
+        <nav class="diagram-selector">
+            <button class="diagram-btn active" data-diagram="system-architecture">
+                🏗️ System Architecture
+            </button>
+            <button class="diagram-btn" data-diagram="database-er">
+                🗄️ Database ER
+            </button>
+            <button class="diagram-btn" data-diagram="component-structure">
+                🧩 Components
+            </button>
+            <button class="diagram-btn" data-diagram="auth-flow">
+                🔐 Auth Flow
+            </button>
+            <button class="diagram-btn" data-diagram="chat-sequence">
+                💬 Chat Sequence
+            </button>
+        </nav>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>🔄 Auto Rotate</label>
+                <input type="checkbox" id="auto-rotate" checked>
+            </div>
+            <div class="control-group">
+                <label>✨ Show Labels</label>
+                <input type="checkbox" id="show-labels" checked>
+            </div>
+            <div class="control-group">
+                <label>🌐 Layout</label>
+                <select id="layout-type">
+                    <option value="3d-force">3D Force</option>
+                    <option value="hierarchical">Hierarchical</option>
+                    <option value="circular">Circular</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="info-panel" class="info-panel">
+            <h3 id="info-title">💡 Node Information</h3>
+            <div id="info-content">
+                <p>Click on any node to see detailed information</p>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="three-canvas"></canvas>
+
+    <div class="help-overlay" id="help-overlay">
+        <div class="help-content">
+            <h3>🎮 Controls</h3>
+            <ul>
+                <li><strong>Left Mouse:</strong> Rotate camera</li>
+                <li><strong>Right Mouse:</strong> Pan camera</li>
+                <li><strong>Scroll:</strong> Zoom in/out</li>
+                <li><strong>Click Node:</strong> Show information</li>
+                <li><strong>Double Click:</strong> Focus on node</li>
+                <li><strong>Space:</strong> Reset camera</li>
+            </ul>
+            <button onclick="hideHelp()">Got it!</button>
+        </div>
+    </div>
+
+    <button class="help-btn" onclick="showHelp()">❓</button>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Simple OrbitControls implementation
+        THREE.OrbitControls = function (camera, domElement) {
+            this.camera = camera;
+            this.domElement = domElement || document;
+            this.target = new THREE.Vector3();
+            this.enabled = true;
+            this.enableDamping = true;
+            this.dampingFactor = 0.05;
+            this.autoRotate = false;
+            this.autoRotateSpeed = 2.0;
+            this.minDistance = 5;
+            this.maxDistance = 100;
+            // Vertical rotation limits (in radians)
+            this.minPolarAngle = Math.PI * 0.1;  // 18 degrees from top
+            this.maxPolarAngle = Math.PI * 0.8;  // 144 degrees from top
+            
+            var scope = this;
+            var isMouseDown = false;
+            var mouse = { x: 0, y: 0 };
+            var lastMouse = { x: 0, y: 0 };
+            var spherical = new THREE.Spherical();
+            var sphericalDelta = new THREE.Spherical();
+            var scale = 1;
+            var panOffset = new THREE.Vector3();
+            
+            this.update = function() {
+                if (scope.autoRotate) {
+                    sphericalDelta.theta -= 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+                }
+                
+                var offset = new THREE.Vector3().copy(scope.camera.position).sub(scope.target);
+                spherical.setFromVector3(offset);
+                
+                spherical.theta += sphericalDelta.theta;
+                spherical.phi += sphericalDelta.phi;
+                spherical.radius *= scale;
+                
+                // Apply polar angle limits (vertical rotation constraints)
+                spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
+                
+                spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
+                
+                scope.target.add(panOffset);
+                offset.setFromSpherical(spherical);
+                scope.camera.position.copy(scope.target).add(offset);
+                scope.camera.lookAt(scope.target);
+                
+                if (scope.enableDamping) {
+                    sphericalDelta.theta *= (1 - scope.dampingFactor);
+                    sphericalDelta.phi *= (1 - scope.dampingFactor);
+                    panOffset.multiplyScalar(1 - scope.dampingFactor);
+                    scale = 1 + (scale - 1) * (1 - scope.dampingFactor);
+                } else {
+                    sphericalDelta.set(0, 0, 0);
+                    panOffset.set(0, 0, 0);
+                    scale = 1;
+                }
+            };
+            
+            scope.domElement.addEventListener('mousedown', function(event) {
+                if (!scope.enabled) return;
+                isMouseDown = true;
+                lastMouse.x = event.clientX;
+                lastMouse.y = event.clientY;
+            });
+            
+            scope.domElement.addEventListener('mousemove', function(event) {
+                if (!scope.enabled || !isMouseDown) return;
+                
+                var deltaX = event.clientX - lastMouse.x;
+                var deltaY = event.clientY - lastMouse.y;
+                
+                if (event.button === 0 || event.buttons === 1) {
+                    // Horizontal rotation (left-right) - reduced sensitivity
+                    sphericalDelta.theta -= deltaX * 0.003;
+                    // Vertical rotation (up-down) - very low sensitivity
+                    sphericalDelta.phi += deltaY * 0.002;
+                }
+                
+                lastMouse.x = event.clientX;
+                lastMouse.y = event.clientY;
+            });
+            
+            scope.domElement.addEventListener('mouseup', function() {
+                isMouseDown = false;
+            });
+            
+            scope.domElement.addEventListener('wheel', function(event) {
+                if (!scope.enabled) return;
+                event.preventDefault();
+                
+                if (event.deltaY < 0) {
+                    scale /= 1.1;
+                } else {
+                    scale *= 1.1;
+                }
+            });
+            
+            scope.domElement.addEventListener('contextmenu', function(event) {
+                event.preventDefault();
+            });
+        };
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
