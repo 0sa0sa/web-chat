@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon, MessageCircle } from "lucide-react";
 import { FetchDataSteps } from "@/components/tutorial/fetch-data-steps";
+import { Button } from "@/components/ui/button";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -20,6 +22,18 @@ export default async function ProtectedPage() {
           This is a protected page that you can only see as an authenticated
           user
         </div>
+      </div>
+      <div className="flex flex-col gap-4 items-start">
+        <h2 className="font-bold text-2xl mb-4">チャット機能</h2>
+        <p className="text-muted-foreground mb-4">
+          ログイン済みユーザー同士でリアルタイムチャットができます。
+        </p>
+        <Link href="/chat">
+          <Button className="flex items-center gap-2">
+            <MessageCircle className="w-4 h-4" />
+            チャットを開始
+          </Button>
+        </Link>
       </div>
       <div className="flex flex-col gap-2 items-start">
         <h2 className="font-bold text-2xl mb-4">Your user details</h2>
