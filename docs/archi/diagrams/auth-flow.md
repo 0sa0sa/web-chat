@@ -1,19 +1,19 @@
-# 認証フロー図
+# 🔐 認証フロー図 (3D Enhanced)
 
-Web Chat Systemの包括的な認証システムのフローチャートです。
+Web Chat Systemの包括的な認証システムのフローチャートを3D風の立体的な図で表現しています。
 
 ```mermaid
 flowchart TD
-    %% Web Chat System - 認証フロー図
+    %% Web Chat System - Authentication Flow
     
-    Start([🚀 ユーザーがアプリにアクセス]) --> CheckSession{🔍 セッションチェック}
+    Start([🚀 ユーザーアクセス]) --> CheckSession{🔍 セッションチェック}
     
-    CheckSession -->|セッション有効| Dashboard[📊 ダッシュボードへ]
-    CheckSession -->|セッション無効/なし| AuthChoice{🔐 認証選択}
+    CheckSession -->|有効| Dashboard[📊 ダッシュボード]
+    CheckSession -->|無効/なし| AuthChoice{🔐 認証選択}
     
-    AuthChoice -->|新規登録| SignUpForm[📝 サインアップフォーム]
-    AuthChoice -->|ログイン| LoginForm[🔑 ログインフォーム]
-    AuthChoice -->|パスワード忘れ| ForgotForm[❓ パスワードリセットフォーム]
+    AuthChoice -->|新規登録| SignUpForm[📝 サインアップ]
+    AuthChoice -->|ログイン| LoginForm[🔑 ログイン]
+    AuthChoice -->|パスワード忘れ| ForgotForm[❓ パスワードリセット]
     
     %% サインアップフロー
     SignUpForm --> ValidateSignUp{✅ 入力検証}
@@ -25,10 +25,10 @@ flowchart TD
     SendConfirmEmail --> WaitConfirm[⏳ メール確認待ち]
     WaitConfirm --> EmailConfirm{📬 メール確認}
     EmailConfirm -->|未確認| WaitConfirm
-    EmailConfirm -->|確認済み| CreateProfile[👤 プロファイル自動作成]
+    EmailConfirm -->|確認済み| CreateProfile[👤 プロファイル作成]
     
     %% ログインフロー
-    LoginForm --> ValidateLogin{✅ 認証情報検証}
+    LoginForm --> ValidateLogin{✅ 認証検証}
     ValidateLogin -->|エラー| LoginError[❌ エラー表示]
     LoginError --> LoginForm
     ValidateLogin -->|OK| CheckEmailConfirm{📬 メール確認済み？}
@@ -37,7 +37,7 @@ flowchart TD
     EmailNotConfirmed --> WaitConfirm
     CheckEmailConfirm -->|確認済み| CreateSession[🔐 セッション作成]
     
-    %% パスワードリセットフロー
+    %% パスワードリセット
     ForgotForm --> ValidateEmail{✅ メール検証}
     ValidateEmail -->|エラー| ForgotError[❌ エラー表示]
     ForgotError --> ForgotForm
@@ -46,21 +46,21 @@ flowchart TD
     
     %% セッション作成後
     CreateProfile --> CreateSession
-    CreateSession --> SetCookie[🍪 セッションCookie設定]
-    SetCookie --> UpdateMiddleware[⚙️ ミドルウェアでセッション更新]
+    CreateSession --> SetCookie[🍪 Cookie設定]
+    SetCookie --> UpdateMiddleware[⚙️ ミドルウェア更新]
     UpdateMiddleware --> Dashboard
     
     %% ダッシュボード内フロー
     Dashboard --> ChatAccess{💬 チャットアクセス}
     ChatAccess -->|認証必要| ProtectedCheck{🛡️ 保護ルートチェック}
-    ProtectedCheck -->|セッション有効| ChatInterface[💬 チャットインターフェース]
-    ProtectedCheck -->|セッション無効| AuthChoice
+    ProtectedCheck -->|有効| ChatInterface[💬 チャット画面]
+    ProtectedCheck -->|無効| AuthChoice
     
     ChatInterface --> UserSearch[🔍 ユーザー検索]
     ChatInterface --> ConversationList[📋 会話一覧]
-    ChatInterface --> DirectMessage[💬 ダイレクトメッセージ]
+    ChatInterface --> DirectMessage[💬 DM]
     
-    %% ログアウトフロー
+    %% ログアウト
     Dashboard --> Logout{🚪 ログアウト}
     Logout --> ClearSession[🗑️ セッション削除]
     ClearSession --> ClearCookie[🍪 Cookie削除]
@@ -71,7 +71,7 @@ flowchart TD
     SessionCheck -->|有効| Dashboard
     SessionCheck -->|期限切れ| ClearSession
     
-    %% スタイリング
+    %% Styling
     classDef startEnd fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     classDef process fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
     classDef decision fill:#fff3e0,stroke:#ef6c00,stroke-width:2px

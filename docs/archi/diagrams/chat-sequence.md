@@ -1,17 +1,17 @@
-# チャットメッセージ送信・受信シーケンス図
+# 💬 チャットメッセージ送信・受信シーケンス図 (3D Enhanced)
 
-Web Chat Systemにおけるリアルタイムチャット機能の詳細なシーケンス図です。
+Web Chat Systemにおけるリアルタイムチャット機能の詳細なシーケンス図を3D風の立体的に表現しています。
 
 ```mermaid
 sequenceDiagram
-    %% Web Chat System - チャットメッセージ送信・受信シーケンス図
+    %% Web Chat System - Chat Message Sequence
     
     participant UA as 👤 User A
     participant BA as 🌐 Browser A
     participant UB as 👤 User B  
     participant BB as 🌐 Browser B
-    participant MW as ⚙️ Next.js Middleware
-    participant AU as 🔐 Supabase Auth
+    participant MW as ⚙️ Middleware
+    participant AU as 🔐 Auth
     participant DB as 🗄️ Database
     participant RT as 📡 Realtime
     
@@ -31,30 +31,28 @@ sequenceDiagram
     
     Note over UA, RT: リアルタイム接続確立
     
-    BA->>RT: WebSocket接続<br/>(conversation_id)
+    BA->>RT: WebSocket接続
     RT->>BA: 接続確立
     
-    BB->>RT: WebSocket接続<br/>(conversation_id)
+    BB->>RT: WebSocket接続
     RT->>BB: 接続確立
     
     Note over UA, RT: メッセージ履歴取得
     
-    BA->>DB: SELECT messages<br/>WHERE conversation_id = ?
+    BA->>DB: SELECT messages
     DB->>BA: 過去メッセージ一覧
     
-    BB->>DB: SELECT messages<br/>WHERE conversation_id = ?
+    BB->>DB: SELECT messages
     DB->>BB: 過去メッセージ一覧
     
     Note over UA, RT: メッセージ送信フロー
     
     UA->>BA: メッセージ入力・送信
-    BA->>DB: INSERT INTO messages<br/>(content, user_id, conversation_id)
+    BA->>DB: INSERT INTO messages
     
-    Note right of DB: RLS Policy により<br/>ユーザーAのメッセージのみ<br/>送信可能
+    Note right of DB: RLS Policy により<br/>ユーザーAのみ送信可能
     
-    DB->>DB: トリガー実行<br/>(update_conversation_timestamp)
-    DB->>DB: updated_at更新
-    
+    DB->>DB: トリガー実行<br/>(update_timestamp)
     DB->>BA: INSERT成功
     BA->>UA: 送信完了表示
     
@@ -70,12 +68,12 @@ sequenceDiagram
     
     Note over UA, RT: 会話一覧更新
     
-    DB->>RT: conversations table<br/>updated_at changed
+    DB->>RT: conversations updated
     RT->>BA: 会話リスト更新通知
     RT->>BB: 会話リスト更新通知
     
-    BA->>BA: 会話一覧の順序更新
-    BB->>BB: 会話一覧の順序更新
+    BA->>BA: 会話一覧順序更新
+    BB->>BB: 会話一覧順序更新
     
     Note over UA, RT: エラーハンドリング
     

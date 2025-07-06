@@ -1,83 +1,83 @@
-# システム全体構成図
+# 🌟 システム全体構成図 (3D Enhanced)
 
-Web Chat Systemのシステム全体のアーキテクチャを示す図です。
+Web Chat Systemのシステム全体のアーキテクチャを示す3D風の立体的な図です。
 
 ```mermaid
 graph TB
-    %% Web Chat System - システム構成図
+    %% Web Chat System - System Architecture
     
     subgraph "User Layer"
-        Desktop["🖥️ Desktop User"]
-        Mobile["📱 Mobile User"]  
-        Tablet["💻 Tablet User"]
+        Desktop["🖥️ Desktop User<br/>Chrome/Firefox/Safari"]
+        Mobile["📱 Mobile User<br/>iOS/Android Browsers"]  
+        Tablet["💻 Tablet User<br/>Touch Interface"]
     end
     
     subgraph "Frontend Layer"
         subgraph "Browser Environment"
-            subgraph "React App"
-                Pages["📄 Pages"]
-                Components["🧩 Components"]
-                Hooks["🪝 Hooks"]
+            subgraph "React Application"
+                Pages["📄 Pages<br/>Home, Auth, Chat"]
+                Components["🧩 Components<br/>Forms, UI, Theme"]
+                Hooks["🪝 Custom Hooks<br/>Auth, Chat, Theme"]
             end
             
             subgraph "Next.js Runtime"
-                AppRouter["🛣️ App Router"]
-                ServerComponents["⚙️ Server Components"]
-                ClientComponents["💻 Client Components"]
+                AppRouter["🛣️ App Router<br/>File-based Routing"]
+                ServerComponents["⚙️ Server Components<br/>SSR Rendering"]
+                ClientComponents["💻 Client Components<br/>Interactive UI"]
             end
             
             subgraph "UI Libraries"
-                ShadcnUI["🎨 shadcn/ui"]
-                TailwindCSS["🎨 Tailwind CSS"]
-                LucideIcons["🎯 Lucide Icons"]
+                ShadcnUI["🎨 shadcn/ui<br/>Button, Input, Card"]
+                TailwindCSS["🎨 Tailwind CSS<br/>Responsive Design"]
+                LucideIcons["🎯 Lucide Icons<br/>Icon Library"]
             end
         end
     end
     
     subgraph "Middleware Layer"
         subgraph "Next.js Middleware"
-            SessionMgmt["🔐 Session Management"]
-            RouteProtection["🛡️ Route Protection"]
+            SessionMgmt["🔐 Session Management<br/>Cookie & Token Handling"]
+            RouteProtection["🛡️ Route Protection<br/>Auth Guards"]
         end
         
         subgraph "Supabase Client"
-            BrowserClient["🌐 Browser Client"]
-            ServerClient["🖥️ Server Client"]
+            BrowserClient["🌐 Browser Client<br/>API & Real-time"]
+            ServerClient["🖥️ Server Client<br/>Server Queries"]
         end
         
-        subgraph "Theme Provider"
-            DarkMode["🌙 Dark Mode"]
-            SystemTheme["⚙️ System Theme"]
+        subgraph "Theme Management"
+            DarkMode["🌙 Dark Mode<br/>Theme Toggle"]
+            SystemTheme["⚙️ System Theme<br/>OS Detection"]
         end
     end
     
     subgraph "Backend Layer (Supabase)"
         subgraph "Authentication"
-            JWTAuth["🔑 JWT Auth"]
-            UserMgmt["👤 User Management"]
-            SessionStore["💾 Session Store"]
+            JWTAuth["🔑 JWT Auth<br/>Token Management"]
+            UserMgmt["👤 User Management<br/>Account Operations"]
+            SessionStore["💾 Session Store<br/>Redis Backend"]
         end
         
         subgraph "Database"
-            PostgreSQL[("🗄️ PostgreSQL")]
-            PostgRESTAPI["🔗 PostgREST API"]
-            subgraph "Database Components"
-                Tables["📊 Tables"]
-                Functions["⚙️ Functions"]
-                Triggers["⚡ Triggers"]
-                RLSPolicies["🔒 RLS Policies"]
+            PostgreSQL[("🗄️ PostgreSQL<br/>Main Database")]
+            PostgRESTAPI["🔗 PostgREST API<br/>Auto REST API"]
+            subgraph "DB Components"
+                Tables["📊 Tables<br/>Users, Messages"]
+                Functions["⚙️ Functions<br/>Business Logic"]
+                Triggers["⚡ Triggers<br/>Auto Actions"]
+                RLSPolicies["🔒 RLS Policies<br/>Security Rules"]
             end
         end
         
-        subgraph "Realtime"
-            WebSocketServer["📡 WebSocket Server"]
-            PubSub["📢 Pub/Sub"]
-            ChangeDetection["🔍 Change Detection"]
+        subgraph "Real-time"
+            WebSocketServer["📡 WebSocket Server<br/>Real-time Communication"]
+            PubSub["📢 Pub/Sub<br/>Message Broadcasting"]
+            ChangeDetection["🔍 Change Detection<br/>Database Events"]
         end
         
         subgraph "Storage"
-            FileStorage["📁 File Storage"]
-            CDN["🌍 CDN"]
+            FileStorage["📁 File Storage<br/>Media Files"]
+            CDN["🌍 CDN<br/>Global Delivery"]
         end
     end
     
@@ -112,10 +112,10 @@ graph TB
     PostgRESTAPI --> PostgreSQL
     
     %% Styling
-    classDef userLayer fill:#e1f5fe
-    classDef frontendLayer fill:#e8f5e8  
-    classDef middlewareLayer fill:#fff9c4
-    classDef backendLayer fill:#ffebee
+    classDef userLayer fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef frontendLayer fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef middlewareLayer fill:#fff9c4,stroke:#f57c00,stroke-width:2px
+    classDef backendLayer fill:#ffebee,stroke:#d32f2f,stroke-width:2px
     
     class Desktop,Mobile,Tablet userLayer
     class Pages,Components,Hooks,AppRouter,ServerComponents,ClientComponents,ShadcnUI,TailwindCSS,LucideIcons frontendLayer

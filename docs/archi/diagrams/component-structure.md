@@ -1,89 +1,103 @@
-# コンポーネント構造図
+# 🧩 コンポーネント構造図 (3D Enhanced)
 
-Web Chat Systemのフロントエンドコンポーネント構成と依存関係を示す図です。
+Web Chat Systemのフロントエンドコンポーネント構成と依存関係を示す3D風の立体的な図です。
 
 ```mermaid
 graph TD
-    %% Web Chat System - コンポーネント構造図
+    %% Web Chat System - Component Structure
     
     subgraph "App Router (Next.js 15)"
-        RootLayout["🏠 layout.tsx<br/>(Root Layout)"]
-        HomePage["📄 page.tsx<br/>(Home Page)"]
+        direction TB
+        RootLayout["🏠 layout.tsx<br/>Global Styles & Theme"]
+        HomePage["📄 page.tsx<br/>Hero & Navigation"]
         
         subgraph "Auth Pages"
-            LoginPage["🔑 login/page.tsx"]
-            SignUpPage["📝 sign-up/page.tsx"] 
-            ForgotPage["❓ forgot-password/page.tsx"]
-            ConfirmRoute["✅ confirm/route.ts"]
+            direction TB
+            LoginPage["🔑 login/page.tsx<br/>Sign In Form"]
+            SignUpPage["📝 sign-up/page.tsx<br/>Registration Form"] 
+            ForgotPage["❓ forgot-password/page.tsx<br/>Reset Password"]
+            ConfirmRoute["✅ confirm/route.ts<br/>Email Verification"]
         end
         
         subgraph "Chat Pages"
-            ChatListPage["📋 chat/page.tsx"]
-            ChatRoomPage["💬 chat/[id]/page.tsx"]
+            direction TB
+            ChatListPage["📋 chat/page.tsx<br/>Conversations List"]
+            ChatRoomPage["💬 chat/[id]/page.tsx<br/>Message Interface"]
         end
         
         subgraph "Protected Pages"
-            ProtectedLayout["🛡️ protected/layout.tsx"]
-            ProtectedPage["🔒 protected/page.tsx"]
+            direction TB
+            ProtectedLayout["🛡️ protected/layout.tsx<br/>Auth Guard"]
+            ProtectedPage["🔒 protected/page.tsx<br/>User Dashboard"]
         end
     end
     
     subgraph "React Components"
-        subgraph "Authentication Components"
-            AuthButton["🔐 AuthButton"]
-            LoginForm["🔑 LoginForm"]
-            SignUpForm["📝 SignUpForm"]
-            ForgotForm["❓ ForgotPasswordForm"]
-            LogoutButton["🚪 LogoutButton"]
+        direction TB
+        subgraph "Auth Components"
+            direction LR
+            AuthButton["🔐 AuthButton<br/>Auth State & Actions"]
+            LoginForm["🔑 LoginForm<br/>Email & Password"]
+            SignUpForm["📝 SignUpForm<br/>User Registration"]
+            ForgotForm["❓ ForgotPasswordForm<br/>Email Reset"]
+            LogoutButton["🚪 LogoutButton<br/>Session Clear"]
         end
         
         subgraph "Chat Components"
-            ChatInterface["💬 ChatInterface"]
-            ConversationsList["📋 ConversationsList"]
-            DirectMessageInterface["💬 DirectMessageInterface"]
+            direction LR
+            ChatInterface["💬 ChatInterface<br/>Message Display"]
+            ConversationsList["📋 ConversationsList<br/>Chat List & Search"]
+            DirectMessageInterface["💬 DirectMessageInterface<br/>1:1 Chat Interface"]
         end
         
         subgraph "UI Components (shadcn/ui)"
-            Button["🔘 Button"]
-            Input["📝 Input"]
-            Card["🃏 Card"]
-            Avatar["👤 Avatar"]
-            ScrollArea["📜 ScrollArea"]
+            direction LR
+            Button["🔘 Button<br/>Click Actions"]
+            Input["📝 Input<br/>User Input"]
+            Card["🃏 Card<br/>Content Container"]
+            Avatar["👤 Avatar<br/>User Image"]
+            ScrollArea["📜 ScrollArea<br/>Content Scroll"]
         end
         
         subgraph "Utility Components"
-            ThemeSwitcher["🌙 ThemeSwitcher"]
-            EnvWarning["⚠️ EnvVarWarning"]
-            Hero["🦸 Hero"]
+            direction LR
+            ThemeSwitcher["🌙 ThemeSwitcher<br/>Light/Dark Toggle"]
+            EnvWarning["⚠️ EnvVarWarning<br/>Config Check"]
+            Hero["🦸 Hero<br/>Landing Section"]
         end
     end
     
     subgraph "Libraries & Services"
+        direction TB
         subgraph "Supabase Integration"
-            SupabaseClient["🌐 client.ts"]
-            SupabaseServer["🖥️ server.ts"]
-            SupabaseMiddleware["⚙️ middleware.ts"]
+            direction LR
+            SupabaseClient["🌐 client.ts<br/>Auth & Database Client"]
+            SupabaseServer["🖥️ server.ts<br/>Server Auth & Queries"]
+            SupabaseMiddleware["⚙️ middleware.ts<br/>Session & Route Protection"]
         end
         
         subgraph "Type Definitions"
-            ChatTypes["💬 chat.ts"]
-            SupabaseTypes["🗄️ supabase.ts"]
-            TypesIndex["📋 index.ts"]
+            direction LR
+            ChatTypes["💬 chat.ts<br/>Message & User Types"]
+            SupabaseTypes["🗄️ supabase.ts<br/>Database Types"]
+            TypesIndex["📋 index.ts<br/>Type Exports"]
         end
         
         subgraph "Utilities"
-            Utils["🛠️ utils.ts"]
-            CreateProfile["👤 create-user-profile.ts"]
+            direction LR
+            Utils["🛠️ utils.ts<br/>Helper Functions"]
+            CreateProfile["👤 create-user-profile.ts<br/>Profile Creation"]
         end
     end
     
     subgraph "External Dependencies"
-        NextJS["⚛️ Next.js 15"]
-        React["⚛️ React 19"]
-        TypeScript["📘 TypeScript"]
-        TailwindCSS["🎨 Tailwind CSS"]
-        NextThemes["🌙 next-themes"]
-        LucideReact["🎯 Lucide React"]
+        direction TB
+        NextJS["⚛️ Next.js 15<br/>App Router & SSR"]
+        React["⚛️ React 19<br/>Hooks & Components"]
+        TypeScript["📘 TypeScript<br/>Type Checking"]
+        TailwindCSS["🎨 Tailwind CSS<br/>Responsive Design"]
+        NextThemes["🌙 next-themes<br/>Theme Management"]
+        LucideReact["🎯 Lucide React<br/>Icon Library"]
     end
     
     %% Page to Component Dependencies
@@ -143,7 +157,7 @@ graph TD
     ThemeSwitcher --> NextThemes
     ThemeSwitcher --> Button
     
-    %% Library Dependencies
+    %% Service Dependencies
     SupabaseClient --> SupabaseTypes
     ChatTypes --> SupabaseTypes
     CreateProfile --> SupabaseClient
@@ -165,8 +179,8 @@ graph TD
     
     %% Styling
     classDef pageLayer fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
-    classDef componentLayer fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
-    classDef libraryLayer fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef componentLayer fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef libraryLayer fill:#fff3e0,stroke:#f57c00,stroke-width:2px
     classDef externalLayer fill:#fce4ec,stroke:#ad1457,stroke-width:2px
     
     class RootLayout,HomePage,LoginPage,SignUpPage,ForgotPage,ConfirmRoute,ChatListPage,ChatRoomPage,ProtectedLayout,ProtectedPage pageLayer
