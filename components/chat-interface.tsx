@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from "lucide-react";
 import { MessageWithUser } from "@/lib/types/chat";
 import type { User } from "@supabase/supabase-js";
+import { useToast } from "@/components/ui/use-toast";
+import { formatMessageTime } from "@/lib/utils/format-time";
 
 interface ChatInterfaceProps {
   user: User;
@@ -21,6 +23,7 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
   const [loading, setLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
+  const { toast } = useToast();
 
   // メッセージ履歴を取得
   const fetchMessages = useCallback(async () => {
@@ -31,6 +34,11 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
 
     if (error) {
       console.error("Error fetching messages:", error);
+      toast({
+        title: "エラー",
+        description: "メッセージの取得に失敗しました。",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -56,6 +64,11 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
 
     if (error) {
       console.error("Error sending message:", error);
+      toast({
+        title: "エラー",
+        description: "メッセージの送信に失敗しました。もう一度お試しください。",
+        variant: "destructive",
+      });
     } else {
       setNewMessage("");
     }
@@ -111,71 +124,87 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
     scrollToBottom();
   }, [messages]);
 
-  const getUserInitials = (email: string) => {
+  const getUserInitials = useCallback((email: string) => {
     return email.substring(0, 2).toUpperCase();
-  };
+  }, []);
 
-  const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString("ja-JP", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   return (
     <div className="flex flex-col h-full">
       {/* メッセージエリア */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex items-start space-x-3 ${
-                message.user_id === user.id ? "flex-row-reverse space-x-reverse" : ""
-              }`}
-            >
-              <Avatar className="w-8 h-8">
-                <AvatarFallback className="text-xs">
-                  {getUserInitials(message.user?.email || "?")}
-                </AvatarFallback>
-              </Avatar>
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-6">
+        <div className="space-y-6 py-4">
+          {messages.map((message, index) => {
+            const isCurrentUser = message.user_id === user.id;
+            const showAvatar = index === 0 || 
+              messages[index - 1]?.user_id !== message.user_id;
+            
+            return (
               <div
-                className={`flex flex-col space-y-1 max-w-xs lg:max-w-md ${
-                  message.user_id === user.id ? "items-end" : "items-start"
-                }`}
+                key={message.id}
+                className={`flex items-end space-x-3 mb-4 ${
+                  isCurrentUser ? "flex-row-reverse space-x-reverse" : ""
+                } ${showAvatar ? "mt-6" : "mt-2"}`}
               >
-                <Card
-                  className={`p-3 ${
-                    message.user_id === user.id
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
+                {showAvatar ? (
+                  <Avatar className="w-8 h-8 mb-2">
+                    <AvatarFallback className="text-xs">
+                      {getUserInitials(message.user?.email || "?")}
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <div className="w-8 h-8 mb-2" />
+                )}
+                <div
+                  className={`flex flex-col space-y-2 ${
+                    isCurrentUser ? "items-end" : "items-start"
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
-                </Card>
-                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                  <span>{message.user?.email}</span>
-                  <span>•</span>
-                  <span>{formatTime(message.created_at || '')}</span>
+                  <Card
+                    className={`p-4 max-w-[320px] sm:max-w-lg shadow-sm transition-all hover:shadow-md ${
+                      isCurrentUser
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background border"
+                    }`}
+                  >
+                    <p className="text-sm leading-relaxed break-words">{message.content}</p>
+                  </Card>
+                  {showAvatar && (
+                    <div className="flex items-center space-x-2 text-xs text-muted-foreground px-2">
+                      <span>{message.user?.email}</span>
+                      <span>•</span>
+                      <span>{formatMessageTime(message.created_at || '')}</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </ScrollArea>
 
       {/* メッセージ入力エリア */}
-      <div className="border-t p-4">
-        <form onSubmit={sendMessage} className="flex space-x-2">
+      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-6 mt-4">
+        <form onSubmit={sendMessage} className="flex space-x-4">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="メッセージを入力..."
             disabled={loading}
-            className="flex-1"
+            className="flex-1 min-h-[48px] rounded-full px-6 py-3 focus:ring-2 focus:ring-primary text-sm"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(e as any);
+              }
+            }}
           />
-          <Button type="submit" disabled={loading || !newMessage.trim()}>
-            <Send className="w-4 h-4" />
+          <Button 
+            type="submit" 
+            disabled={loading || !newMessage.trim()}
+            className="rounded-full w-12 h-12 p-0 hover:scale-105 transition-transform"
+          >
+            <Send className="w-5 h-5" />
           </Button>
         </form>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,10 @@ import { Send, ArrowLeft, Home } from "lucide-react";
 import { MessageWithUser, UserProfile } from "@/lib/types/chat";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import UserStatus from "@/components/user-status";
+import { usePresence } from "@/hooks/use-presence";
+import { formatMessageTime } from "@/lib/utils/format-time";
 
 interface DirectMessageInterfaceProps {
   user: User;
@@ -29,6 +33,10 @@ export default function DirectMessageInterface({
   const [otherUser, setOtherUser] = useState<UserProfile | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
+  const { toast } = useToast();
+  
+  // プレゼンス機能を使用
+  usePresence(user);
 
   // 相手ユーザー情報を取得
   const fetchOtherUser = useCallback(async () => {
@@ -40,6 +48,11 @@ export default function DirectMessageInterface({
 
     if (error) {
       console.error("Error fetching other user:", error);
+      toast({
+        title: "エラー",
+        description: "ユーザー情報の取得に失敗しました。",
+        variant: "destructive",
+      });
     } else if (data) {
       setOtherUser(data);
     }
@@ -55,6 +68,11 @@ export default function DirectMessageInterface({
 
     if (error) {
       console.error("Error fetching messages:", error);
+      toast({
+        title: "エラー",
+        description: "メッセージの取得に失敗しました。",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -88,8 +106,17 @@ export default function DirectMessageInterface({
 
     if (error) {
       console.error("Error sending message:", error);
+      toast({
+        title: "エラー",
+        description: "メッセージの送信に失敗しました。もう一度お試しください。",
+        variant: "destructive",
+      });
     } else {
       setNewMessage("");
+      toast({
+        title: "送信完了",
+        description: "メッセージを送信しました。",
+      });
     }
     setLoading(false);
   };
@@ -157,16 +184,10 @@ export default function DirectMessageInterface({
     scrollToBottom();
   }, [messages]);
 
-  const getUserInitials = (email: string) => {
+  const getUserInitials = useCallback((email: string) => {
     return email.substring(0, 2).toUpperCase();
-  };
+  }, []);
 
-  const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString("ja-JP", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   if (!otherUser) {
     return <div className="flex items-center justify-center h-full">読み込み中...</div>;
@@ -175,29 +196,36 @@ export default function DirectMessageInterface({
   return (
     <>
       {/* ヘッダー */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-        <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center">
-          <div className="mr-4 flex items-center space-x-3">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 mb-2">
+        <div className="container max-w-4xl mx-auto px-6 flex h-16 items-center">
+          <div className="mr-6 flex items-center space-x-4">
             <Link href="/">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="p-2">
                 <Home className="w-4 h-4" />
               </Button>
             </Link>
             <Link href="/chat">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="p-2">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </Link>
-            <Avatar className="w-8 h-8">
-              <AvatarFallback className="text-xs">
-                {getUserInitials(otherUser.email || 'UN')}
-              </AvatarFallback>
-            </Avatar>
-            <h1 className="text-lg font-semibold">
-              {otherUser.display_name || otherUser.email?.split('@')[0] || 'Unknown User'}
-            </h1>
+            <div className="relative ml-2">
+              <Avatar className="w-10 h-10">
+                <AvatarFallback className="text-sm">
+                  {getUserInitials(otherUser.email || 'UN')}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-1 -right-1">
+                <UserStatus userId={otherUserId} size="sm" />
+              </div>
+            </div>
+            <div className="ml-3">
+              <h1 className="text-lg font-semibold">
+                {otherUser.display_name || otherUser.email?.split('@')[0] || 'Unknown User'}
+              </h1>
+            </div>
           </div>
-          <div className="flex flex-1 items-center justify-end space-x-2">
+          <div className="flex flex-1 items-center justify-end space-x-3">
             <span className="text-sm text-muted-foreground">
               {otherUser.email || 'No email'}
             </span>
@@ -207,66 +235,93 @@ export default function DirectMessageInterface({
 
       {/* メッセージエリア */}
       <div className="flex-1 flex flex-col">
-        <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="space-y-4">
+        <ScrollArea ref={scrollAreaRef} className="flex-1 p-6">
+          <div className="max-w-4xl mx-auto px-6">
+            <div className="space-y-4 py-4">
               {messages.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  まだメッセージがありません。
-                  <br />
-                  最初のメッセージを送信してみましょう！
+                <div className="text-center py-16 px-4">
+                  <div className="bg-muted/50 rounded-full p-8 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                    <Send className="w-10 h-10 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground text-base">
+                    まだメッセージがありません。
+                    <br />
+                    最初のメッセージを送信してみましょう！
+                  </p>
                 </div>
               ) : (
-                messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex items-start space-x-3 ${
-                      message.user_id === user.id ? "flex-row-reverse space-x-reverse" : ""
-                    }`}
-                  >
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback className="text-xs">
-                        {getUserInitials(message.user?.email || "?")}
-                      </AvatarFallback>
-                    </Avatar>
+                messages.map((message, index) => {
+                  const isCurrentUser = message.user_id === user.id;
+                  const showAvatar = index === 0 || 
+                    messages[index - 1]?.user_id !== message.user_id;
+                  
+                  return (
                     <div
-                      className={`flex flex-col space-y-1 max-w-xs lg:max-w-md ${
-                        message.user_id === user.id ? "items-end" : "items-start"
-                      }`}
+                      key={message.id}
+                      className={`flex items-end space-x-3 mb-4 ${
+                        isCurrentUser ? "flex-row-reverse space-x-reverse" : ""
+                      } ${showAvatar ? "mt-6" : "mt-2"}`}
                     >
-                      <Card
-                        className={`p-3 ${
-                          message.user_id === user.id
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
+                      {showAvatar ? (
+                        <Avatar className="w-8 h-8 mb-2">
+                          <AvatarFallback className="text-xs">
+                            {getUserInitials(message.user?.email || "?")}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="w-8 h-8 mb-2" />
+                      )}
+                      <div
+                        className={`flex flex-col space-y-2 ${
+                          isCurrentUser ? "items-end" : "items-start"
                         }`}
                       >
-                        <p className="text-sm">{message.content}</p>
-                      </Card>
-                      <span className="text-xs text-muted-foreground">
-                        {formatTime(message.created_at || '')}
-                      </span>
+                        <Card
+                          className={`p-4 max-w-[320px] sm:max-w-lg shadow-sm transition-all hover:shadow-md ${
+                            isCurrentUser
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-background border"
+                          }`}
+                        >
+                          <p className="text-sm leading-relaxed break-words">{message.content}</p>
+                        </Card>
+                        {showAvatar && (
+                          <span className="text-xs text-muted-foreground px-2 mb-1">
+                            {formatMessageTime(message.created_at || '')}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
         </ScrollArea>
 
         {/* メッセージ入力エリア */}
-        <div className="border-t p-4">
-          <div className="max-w-4xl mx-auto px-4">
-            <form onSubmit={sendMessage} className="flex space-x-2">
+        <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-6 mt-4">
+          <div className="max-w-4xl mx-auto px-6">
+            <form onSubmit={sendMessage} className="flex space-x-4">
               <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="メッセージを入力..."
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 min-h-[48px] rounded-full px-6 py-3 focus:ring-2 focus:ring-primary text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage(e as any);
+                  }
+                }}
               />
-              <Button type="submit" disabled={loading || !newMessage.trim()}>
-                <Send className="w-4 h-4" />
+              <Button 
+                type="submit" 
+                disabled={loading || !newMessage.trim()}
+                className="rounded-full w-12 h-12 p-0 hover:scale-105 transition-transform"
+              >
+                <Send className="w-5 h-5" />
               </Button>
             </form>
           </div>
