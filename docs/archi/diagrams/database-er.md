@@ -1,15 +1,15 @@
-# データベースER図
+# 🗄️ データベースER図 (3D Enhanced)
 
-Web Chat Systemのデータベース設計とテーブル間のリレーションシップを示す図です。
+Web Chat Systemのデータベース設計とテーブル間のリレーションシップを示す3D風の立体的な図です。
 
 ```mermaid
 erDiagram
-    %% Web Chat System - データベースER図
+    %% Web Chat System - Database ER Diagram
     
-    %% Supabase Auth (Built-in)
+    %% Supabase Auth Schema
     auth_users {
         uuid id PK "Primary Key"
-        text email "Email address"
+        text email UK "Email address"
         text encrypted_password "Encrypted password"
         timestamp email_confirmed_at "Email confirmation time"
         timestamp created_at "Creation time"
@@ -20,36 +20,100 @@ erDiagram
         text aud "Audience"
     }
     
-    %% Custom Tables
+    %% Custom User Management
     user_profiles {
         uuid id PK,FK "References auth.users(id)"
         text email UK "Unique email"
         text display_name "Display name"
+        text avatar_url "Avatar image URL"
+        text bio "User biography"
+        boolean is_online "Online status"
+        timestamp last_seen "Last seen time"
         timestamp created_at "Creation time"
         timestamp updated_at "Last update time"
+        jsonb preferences "User preferences"
     }
     
+    %% Conversation Management
     conversations {
         uuid id PK "Primary Key"
         uuid participant1_id FK "First participant"
-        uuid participant2_id FK "Second participant" 
+        uuid participant2_id FK "Second participant"
+        text conversation_type "Type: direct/group"
+        text title "Conversation title"
+        uuid last_message_id FK "Last message reference"
         timestamp created_at "Creation time"
         timestamp updated_at "Last update time"
+        boolean is_archived "Archived status"
+        jsonb metadata "Conversation metadata"
     }
     
+    %% Message Storage
     messages {
         uuid id PK "Primary Key"
-        text content "Message content"
+        text content NN "Message content"
         uuid user_id FK "Message sender"
         uuid conversation_id FK "Conversation reference"
+        text message_type "Type: text/image/file"
+        text reply_to_id FK "Reply reference"
+        boolean is_edited "Edited flag"
+        boolean is_deleted "Deleted flag"
         timestamp created_at "Creation time"
         timestamp updated_at "Last update time"
+        jsonb attachments "File attachments"
+        jsonb reactions "Message reactions"
     }
     
+    %% Message Analytics
+    message_read_status {
+        uuid id PK "Primary Key"
+        uuid message_id FK "Message reference"
+        uuid user_id FK "Reader user"
+        timestamp read_at "Read timestamp"
+        boolean is_delivered "Delivered flag"
+        timestamp created_at "Creation time"
+    }
+    
+    %% Group Chat (Future)
     chat_rooms {
         uuid id PK "Primary Key"
-        text name "Room name"
+        text name NN "Room name"
+        text description "Room description"
+        uuid owner_id FK "Room owner"
+        text room_type "Type: public/private"
+        integer max_members "Maximum members"
+        text invite_code "Invite code"
         timestamp created_at "Creation time"
+        timestamp updated_at "Last update time"
+        boolean is_active "Active status"
+        jsonb settings "Room settings"
+    }
+    
+    %% Room Membership
+    room_members {
+        uuid id PK "Primary Key"
+        uuid room_id FK "Room reference"
+        uuid user_id FK "User reference"
+        text role "Member role"
+        timestamp joined_at "Join timestamp"
+        timestamp last_read_at "Last read time"
+        boolean is_muted "Muted status"
+        boolean is_banned "Banned status"
+    }
+    
+    %% Notification System
+    notifications {
+        uuid id PK "Primary Key"
+        uuid user_id FK "Target user"
+        uuid sender_id FK "Sender user"
+        text notification_type "Type: message/mention/invite"
+        text title "Notification title"
+        text content "Notification content"
+        uuid reference_id FK "Reference object ID"
+        boolean is_read "Read status"
+        timestamp created_at "Creation time"
+        timestamp read_at "Read timestamp"
+        jsonb metadata "Additional data"
     }
     
     %% Relationships
@@ -57,11 +121,32 @@ erDiagram
     auth_users ||--o{ conversations : "participant1_id"
     auth_users ||--o{ conversations : "participant2_id"
     auth_users ||--o{ messages : "user_id"
+    auth_users ||--o{ chat_rooms : "owner_id"
+    auth_users ||--o{ room_members : "user_id"
+    auth_users ||--o{ notifications : "user_id"
+    auth_users ||--o{ notifications : "sender_id"
+    auth_users ||--o{ message_read_status : "user_id"
     
     user_profiles ||--o{ conversations : "participant1_id"
     user_profiles ||--o{ conversations : "participant2_id"
     
     conversations ||--o{ messages : "id"
+    conversations ||--o| messages : "last_message_id"
+    
+    messages ||--o{ message_read_status : "id"
+    messages ||--o{ messages : "reply_to_id"
+    
+    chat_rooms ||--o{ room_members : "id"
+    chat_rooms ||--o{ messages : "conversation_id"
+    
+    room_members }o--|| user_profiles : "user_id"
+    room_members }o--|| chat_rooms : "room_id"
+    
+    notifications }o--|| user_profiles : "user_id"
+    notifications }o--|| user_profiles : "sender_id"
+    
+    message_read_status }o--|| messages : "message_id"
+    message_read_status }o--|| user_profiles : "user_id"
 ```
 
 ## テーブル定義
