@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メールアドレスの確認</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #2d3748;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4299e1;
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #3182ce;
+        }
+        .warning {
+            background-color: #fef5e7;
+            border: 1px solid #f6ad55;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #718096;
+            margin-top: 30px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .link-text {
+            background-color: #f7fafc;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💬 チャットアプリ</div>
+            <h1 class="title">メールアドレスの確認</h1>
+        </div>
+        
+        <div class="content">
+            <p>こんにちは！</p>
+            
+            <p>チャットアプリにご登録いただき、ありがとうございます。<br>
+            アカウントを有効化するため、下記のボタンをクリックしてメールアドレスを確認してください。</p>
+            
+            <div style="text-align: center;">
+                <a href="{{ .ConfirmationURL }}" class="button">
+                    ✅ メールアドレスを確認する
+                </a>
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ 重要事項</strong>
+                <ul>
+                    <li>このリンクは<strong>24時間以内</strong>に有効期限が切れます</li>
+                    <li>リンクは1回のみ使用可能です</li>
+                    <li>もしボタンが機能しない場合は、下記のリンクをコピーしてブラウザに貼り付けてください</li>
+                </ul>
+            </div>
+            
+            <p><strong>リンクが機能しない場合：</strong></p>
+            <div class="link-text">{{ .ConfirmationURL }}</div>
+            
+            <p>確認が完了すると、すぐにチャットアプリをご利用いただけます。</p>
+            
+            <p><strong>✨ チャットアプリでできること：</strong></p>
+            <ul>
+                <li>🔐 安全な1対1チャット</li>
+                <li>⚡ リアルタイムメッセージ</li>
+                <li>🔍 ユーザー検索機能</li>
+                <li>📱 モバイル対応</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>このメールに心当たりがない場合は、このメールを削除してください。</p>
+            <p>© 2025 チャットアプリ. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
