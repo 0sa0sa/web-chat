@@ -97,24 +97,24 @@
             <div class="logo">💬 チャットアプリ</div>
             <h1 class="title">📧 メールアドレス変更の確認</h1>
         </div>
-        
+
         <div class="content">
             <p>メールアドレスの変更をご依頼いただき、ありがとうございます。</p>
-            
+
             <div class="email-change">
                 <h3>📮 変更内容</h3>
                 <p><strong>変更前：</strong> {{ .Email }}<br>
                 <strong>変更後：</strong> {{ .NewEmail }}</p>
             </div>
-            
+
             <p>新しいメールアドレスでの確認を完了するため、下記のボタンをクリックしてください。</p>
-            
+
             <div style="text-align: center;">
                 <a href="{{ .ConfirmationURL }}" class="button">
                     ✅ 新しいメールアドレスを確認する
                 </a>
             </div>
-            
+
             <div class="warning">
                 <strong>⚠️ セキュリティ確認</strong>
                 <ul>
@@ -124,7 +124,7 @@
                     <li>不審な変更の場合は、すぐにサポートにご連絡ください</li>
                 </ul>
             </div>
-            
+
             <div class="info">
                 <strong>🔐 メールアドレス変更の流れ</strong>
                 <ol>
@@ -134,13 +134,13 @@
                     <li>変更完了後、新しいメールアドレスでログインできます</li>
                 </ol>
             </div>
-            
+
             <p><strong>リンクが機能しない場合：</strong></p>
             <div class="link-text">{{ .ConfirmationURL }}</div>
-            
+
             <p>もしこのメールアドレス変更を依頼していない場合は、直ちにサポートまでご連絡ください。アカウントのセキュリティを確保いたします。</p>
         </div>
-        
+
         <div class="footer">
             <p><strong>🛡️ セキュリティについて：</strong><br>
             アカウントの安全性を保つため、メールアドレス変更には二重確認を行っています。</p>
