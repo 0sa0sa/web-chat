@@ -94,15 +94,15 @@ BEGIN
     RAISE NOTICE 'Chat rooms created: %', chat_rooms_count;
     
     IF user_profiles_count > 0 THEN
-        RAISE NOTICE ' User profiles seeded successfully!';
+        RAISE NOTICE 'User profiles seeded successfully!';
     ELSE
-        RAISE NOTICE '   No user profiles found. Users need to sign up first.';
+        RAISE NOTICE 'No user profiles found. Users need to sign up first.';
     END IF;
     
     IF chat_rooms_count > 0 THEN
-        RAISE NOTICE ' Chat rooms seeded successfully!';
+        RAISE NOTICE 'Chat rooms seeded successfully!';
     ELSE
-        RAISE NOTICE '   No chat rooms created.';
+        RAISE NOTICE 'No chat rooms created.';
     END IF;
 END $$;
 
