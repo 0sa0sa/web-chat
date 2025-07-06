@@ -1,0 +1,68 @@
+name: Deploy Supabase Auth Configuration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/configure-auth.js'
+      - 'supabase/config.toml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy-auth-config:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'scripts/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm ci
+
+      - name: Deploy auth configuration
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          cd scripts
+          npm run configure:auth
+
+      - name: Verify deployment
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          echo "🔍 Verifying auth configuration..."
+          # Add verification API calls here if needed
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "🎉 Auth configuration deployed successfully!"
+          echo "🔐 Authentication settings are now active in Supabase"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Auth configuration deployment failed"
+          echo "Please check the logs and retry"

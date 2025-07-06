@@ -7,7 +7,11 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "format": "npx prettier --write .",
+    "validate:html": "html-validate supabase/templates/*.html",
     "gen:types": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > src/types/supabase.ts",
+    "configure:auth": "cd scripts && npm run configure:auth",
+    "configure:email": "npm run validate:html && cd scripts && npm run configure:email",
+    "configure:all": "npm run validate:html && cd scripts && npm run configure:all",
     "update:types": "npm run gen:types && npm run type-check"
   },
   "dependencies": {
@@ -36,6 +40,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "html-validate": "^9.7.1",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",

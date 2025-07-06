@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "create-users": "node create-test-users.js",
-    "help": "echo 'Available scripts: npm run create-users'"
+    "configure:auth": "node configure-auth.js",
+    "configure:email": "node configure-email.js",
+    "configure:all": "npm run configure:auth && npm run configure:email"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

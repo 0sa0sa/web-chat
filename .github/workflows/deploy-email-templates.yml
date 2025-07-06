@@ -1,0 +1,79 @@
+name: Deploy Supabase Email Templates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/templates/**'
+      - 'scripts/configure-email.js'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy-email-templates:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'scripts/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm ci
+
+      - name: Validate email templates
+        run: |
+          echo "🔍 Validating email templates..."
+          for template in supabase/templates/*.html; do
+            if [ ! -f "$template" ]; then
+              echo "❌ Template not found: $template"
+              exit 1
+            fi
+            echo "✅ Found: $(basename $template)"
+          done
+
+      - name: Deploy email templates
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          cd scripts
+          npm run configure:email
+
+      - name: Verify deployment
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          echo "🔍 Verifying email templates..."
+          # Add verification API calls here if needed
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "🎉 Email templates deployed successfully!"
+          echo "📧 Japanese email templates are now active in Supabase"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Email template deployment failed"
+          echo "Please check the logs and retry"

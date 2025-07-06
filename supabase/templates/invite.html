@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チャットアプリへの招待</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #2d3748;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #9f7aea;
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #805ad5;
+        }
+        .highlight {
+            background-color: #f0fff4;
+            border: 1px solid #68d391;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .features {
+            background-color: #fafafa;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #718096;
+            margin-top: 30px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .link-text {
+            background-color: #f7fafc;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💬 チャットアプリ</div>
+            <h1 class="title">🎉 チャットアプリへのご招待</h1>
+        </div>
+
+        <div class="content">
+            <p>チャットアプリへの招待状をお送りします！</p>
+
+            <div class="highlight">
+                <p><strong>🌟 特別招待</strong><br>
+                あなたは信頼できるメンバーからチャットアプリに招待されました。安全で使いやすいチャット体験をお楽しみください。</p>
+            </div>
+
+            <p>下記のボタンをクリックして、アカウントを作成し、すぐにチャットを始めましょう。</p>
+
+            <div style="text-align: center;">
+                <a href="{{ .ConfirmationURL }}" class="button">
+                    🚀 アカウントを作成してチャットを始める
+                </a>
+            </div>
+
+            <div class="features">
+                <h3>✨ チャットアプリの特徴</h3>
+                <ul>
+                    <li>🔐 <strong>プライバシー保護</strong> - 暗号化された安全な通信</li>
+                    <li>⚡ <strong>高速メッセージング</strong> - リアルタイムでやり取り</li>
+                    <li>🎨 <strong>使いやすいUI</strong> - 直感的で美しいデザイン</li>
+                    <li>🔍 <strong>ユーザー検索</strong> - 簡単に友達を見つけられる</li>
+                    <li>📱 <strong>マルチプラットフォーム</strong> - どのデバイスでも利用可能</li>
+                    <li>🆓 <strong>完全無料</strong> - 隠れた費用は一切なし</li>
+                </ul>
+            </div>
+
+            <p><strong>招待リンクが機能しない場合：</strong></p>
+            <div class="link-text">{{ .ConfirmationURL }}</div>
+
+            <p><strong>⏰ 招待の有効期限：</strong> このリンクは72時間以内にご利用ください。</p>
+
+            <p>参加後すぐに、安全で楽しいチャット体験を始められます。お待ちしております！</p>
+        </div>
+
+        <div class="footer">
+            <p>この招待に心当たりがない場合は、このメールを削除してください。</p>
+            <p>© 2025 チャットアプリ. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

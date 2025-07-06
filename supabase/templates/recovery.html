@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パスワードリセット</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #2d3748;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #e53e3e;
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #c53030;
+        }
+        .warning {
+            background-color: #fed7d7;
+            border: 1px solid #fc8181;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .security-note {
+            background-color: #e6fffa;
+            border: 1px solid #38b2ac;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #718096;
+            margin-top: 30px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .link-text {
+            background-color: #f7fafc;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💬 チャットアプリ</div>
+            <h1 class="title">🔐 パスワードリセットのご案内</h1>
+        </div>
+
+        <div class="content">
+            <p>パスワードリセットをご依頼いただき、ありがとうございます。</p>
+
+            <p>アカウントのパスワードを変更するため、下記のボタンをクリックしてください。</p>
+
+            <div style="text-align: center;">
+                <a href="{{ .ConfirmationURL }}" class="button">
+                    🔑 新しいパスワードを設定する
+                </a>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ セキュリティ上の注意</strong>
+                <ul>
+                    <li>このリンクは<strong>1時間以内</strong>に有効期限が切れます</li>
+                    <li>リンクは1回のみ使用可能です</li>
+                    <li>安全な場所でパスワードを変更してください</li>
+                    <li>パスワードは他人に教えないでください</li>
+                </ul>
+            </div>
+
+            <div class="security-note">
+                <strong>🛡️ 強いパスワードの作成方法</strong>
+                <ul>
+                    <li>8文字以上の長さ</li>
+                    <li>大文字・小文字・数字・記号を組み合わせ</li>
+                    <li>個人情報（名前、誕生日など）は避ける</li>
+                    <li>他のサービスと同じパスワードは使用しない</li>
+                </ul>
+            </div>
+
+            <p><strong>リンクが機能しない場合：</strong></p>
+            <div class="link-text">{{ .ConfirmationURL }}</div>
+
+            <p>もしこのパスワードリセットを依頼していない場合は、このメールを無視してください。あなたのアカウントに変更は加えられません。</p>
+        </div>
+
+        <div class="footer">
+            <p><strong>💡 困ったときは：</strong><br>
+            ログインに関してご不明な点がございましたら、サポートまでお問い合わせください。</p>
+            <p>© 2025 チャットアプリ. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

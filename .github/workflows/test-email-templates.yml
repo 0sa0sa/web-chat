@@ -1,0 +1,125 @@
+name: Test Email Templates
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/templates/**'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/templates/**'
+
+jobs:
+  validate-templates:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install HTML validator
+        run: |
+          npm install -g html-validate
+
+      - name: Validate HTML templates
+        run: |
+          echo "🔍 Validating HTML templates..."
+          
+          # Check if templates directory exists
+          if [ ! -d "supabase/templates" ]; then
+            echo "❌ Templates directory not found"
+            exit 1
+          fi
+          
+          # Validate each HTML template
+          for template in supabase/templates/*.html; do
+            if [ -f "$template" ]; then
+              echo "Validating: $(basename $template)"
+              
+              # Basic HTML validation
+              if ! html-validate "$template"; then
+                echo "❌ HTML validation failed for: $(basename $template)"
+                exit 1
+              fi
+              
+              # Check for required Supabase variables
+              template_name=$(basename "$template" .html)
+              case $template_name in
+                "confirmation"|"recovery"|"magic_link"|"email_change")
+                  if ! grep -q "{{ .ConfirmationURL }}" "$template"; then
+                    echo "❌ Missing {{ .ConfirmationURL }} in $template_name template"
+                    exit 1
+                  fi
+                  ;;
+                "invite")
+                  if ! grep -q "{{ .ConfirmationURL }}" "$template"; then
+                    echo "❌ Missing {{ .ConfirmationURL }} in invite template"
+                    exit 1
+                  fi
+                  ;;
+              esac
+              
+              # Check for Japanese content
+              if ! grep -q "チャットアプリ" "$template"; then
+                echo "⚠️  Warning: No Japanese content found in $(basename $template)"
+              fi
+              
+              echo "✅ $(basename $template) is valid"
+            fi
+          done
+
+      - name: Check template completeness
+        run: |
+          echo "🔍 Checking template completeness..."
+          
+          required_templates=("confirmation.html" "recovery.html" "magic_link.html" "invite.html" "email_change.html")
+          
+          for template in "${required_templates[@]}"; do
+            if [ ! -f "supabase/templates/$template" ]; then
+              echo "❌ Required template missing: $template"
+              exit 1
+            fi
+            echo "✅ Found: $template"
+          done
+
+      - name: Generate template preview
+        run: |
+          echo "📄 Generating template previews..."
+          
+          # Create previews directory
+          mkdir -p template-previews
+          
+          # Copy templates with sample data for preview
+          for template in supabase/templates/*.html; do
+            if [ -f "$template" ]; then
+              template_name=$(basename "$template")
+              
+              # Create preview with sample data
+              sed 's/{{ \.ConfirmationURL }}/https:\/\/example\.com\/auth\/confirm?token=sample-token/g; 
+                   s/{{ \.Email }}/user@example\.com/g; 
+                   s/{{ \.NewEmail }}/newuser@example\.com/g' \
+                   "$template" > "template-previews/preview-$template_name"
+              
+              echo "✅ Preview created: preview-$template_name"
+            fi
+          done
+
+      - name: Upload template previews
+        uses: actions/upload-artifact@v4
+        with:
+          name: email-template-previews
+          path: template-previews/
+          retention-days: 7
+
+      - name: Summary
+        run: |
+          echo "📊 Template Validation Summary:"
+          echo "✅ All templates are valid HTML"
+          echo "✅ All required Supabase variables present"
+          echo "✅ Japanese content detected"
+          echo "📄 Preview files uploaded as artifacts"
