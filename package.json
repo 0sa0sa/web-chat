@@ -8,6 +8,9 @@
     "type-check": "tsc --noEmit",
     "format": "npx prettier --write .",
     "gen:types": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > src/types/supabase.ts",
+    "configure:auth": "cd scripts && npm run configure:auth",
+    "configure:email": "cd scripts && npm run configure:email",
+    "configure:all": "cd scripts && npm run configure:all",
     "update:types": "npm run gen:types && npm run type-check"
   },
   "dependencies": {
