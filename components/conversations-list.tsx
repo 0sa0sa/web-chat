@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Plus, Search } from "lucide-react";
-import { Conversation } from "@/lib/types/chat";
+import { ConversationWithParticipants } from "@/lib/types/chat";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { createUserProfile } from "@/lib/utils/create-user-profile";
@@ -20,11 +20,11 @@ interface ConversationsListProps {
 interface UserSearchResult {
   id: string;
   email: string;
-  display_name?: string;
+  display_name?: string | null;
 }
 
 export default function ConversationsList({ user }: ConversationsListProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversations, setConversations] = useState<ConversationWithParticipants[]>([]);
   const [searchEmail, setSearchEmail] = useState("");
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export default function ConversationsList({ user }: ConversationsListProps) {
   const supabase = createClient();
 
   // 会話一覧を取得
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     // まず会話一覧を取得
     const { data: conversationsData, error: conversationsError } = await supabase
       .from("conversations")
@@ -74,20 +74,20 @@ export default function ConversationsList({ user }: ConversationsListProps) {
     );
 
     // 会話データにユーザー情報を結合
-    const conversationsWithOtherUser = conversationsData.map(conv => ({
+    const conversationsWithOtherUser: ConversationWithParticipants[] = conversationsData.map(conv => ({
       ...conv,
-      participant1: profilesMap.get(conv.participant1_id),
-      participant2: profilesMap.get(conv.participant2_id),
+      participant1: profilesMap.get(conv.participant1_id) || null,
+      participant2: profilesMap.get(conv.participant2_id) || null,
       other_participant: conv.participant1_id === user.id 
-        ? profilesMap.get(conv.participant2_id)
-        : profilesMap.get(conv.participant1_id)
+        ? profilesMap.get(conv.participant2_id) || null
+        : profilesMap.get(conv.participant1_id) || null
     }));
 
     setConversations(conversationsWithOtherUser);
-  };
+  }, [user.id]);
 
   // ユーザー検索
-  const searchUsers = async () => {
+  const searchUsers = useCallback(async () => {
     if (!searchEmail.trim() || loading) return;
 
     setLoading(true);
@@ -104,7 +104,7 @@ export default function ConversationsList({ user }: ConversationsListProps) {
       setSearchResults(data || []);
     }
     setLoading(false);
-  };
+  }, [searchEmail, loading, user.id]);
 
   // 会話を開始または既存の会話を開く
   const startConversation = async (otherUserId: string) => {
@@ -130,7 +130,7 @@ export default function ConversationsList({ user }: ConversationsListProps) {
     createUserProfile().then(() => {
       fetchConversations();
     });
-  }, []);
+  }, []); // fetchConversations is stable
 
   useEffect(() => {
     if (searchEmail.length >= 2) {
@@ -139,13 +139,13 @@ export default function ConversationsList({ user }: ConversationsListProps) {
     } else {
       setSearchResults([]);
     }
-  }, [searchEmail]);
+  }, [searchEmail]); // searchUsers is stable
 
   const getUserInitials = (email: string) => {
     return email.substring(0, 2).toUpperCase();
   };
 
-  const getOtherUserInfo = (conversation: Conversation) => {
+  const getOtherUserInfo = (conversation: ConversationWithParticipants) => {
     return conversation.other_participant || { email: "不明なユーザー", display_name: "不明" };
   };
 
@@ -242,16 +242,16 @@ export default function ConversationsList({ user }: ConversationsListProps) {
                     <div className="flex items-center space-x-3">
                       <Avatar className="w-10 h-10">
                         <AvatarFallback>
-                          {getUserInitials(getOtherUserInfo(conversation).email)}
+                          {getUserInitials(getOtherUserInfo(conversation).email || '')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <h3 className="font-medium truncate">
-                            {getOtherUserInfo(conversation).display_name || getOtherUserInfo(conversation).email.split('@')[0]}
+                            {getOtherUserInfo(conversation).display_name || getOtherUserInfo(conversation).email?.split('@')[0] || ''}
                           </h3>
                           <span className="text-xs text-muted-foreground">
-                            {formatTime(conversation.updated_at)}
+                            {formatTime(conversation.updated_at || '')}
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground truncate">

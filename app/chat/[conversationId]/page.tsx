@@ -4,12 +4,13 @@ import { notFound } from "next/navigation";
 import DirectMessageInterface from "@/components/direct-message-interface";
 
 interface ChatRoomPageProps {
-  params: {
+  params: Promise<{
     conversationId: string;
-  };
+  }>;
 }
 
 export default async function ChatRoomPage({ params }: ChatRoomPageProps) {
+  const { conversationId } = await params;
   const supabase = await createClient();
 
   const {
@@ -24,7 +25,7 @@ export default async function ChatRoomPage({ params }: ChatRoomPageProps) {
   const { data: conversation, error } = await supabase
     .from("conversations")
     .select("*")
-    .eq("id", params.conversationId)
+    .eq("id", conversationId)
     .single();
 
   if (error || !conversation) {
@@ -49,7 +50,7 @@ export default async function ChatRoomPage({ params }: ChatRoomPageProps) {
     <div className="flex flex-col h-screen max-w-6xl mx-auto">
       <DirectMessageInterface
         user={user}
-        conversationId={params.conversationId}
+        conversationId={conversationId}
         otherUserId={otherUserId}
       />
     </div>

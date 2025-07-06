@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, ArrowLeft, Home } from "lucide-react";
-import { Message } from "@/lib/types/chat";
+import { MessageWithUser, UserProfile } from "@/lib/types/chat";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
 
@@ -23,30 +23,30 @@ export default function DirectMessageInterface({
   conversationId,
   otherUserId,
 }: DirectMessageInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageWithUser[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [otherUser, setOtherUser] = useState<{ email: string; display_name?: string } | null>(null);
+  const [otherUser, setOtherUser] = useState<UserProfile | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
   // 相手ユーザー情報を取得
-  const fetchOtherUser = async () => {
+  const fetchOtherUser = useCallback(async () => {
     const { data, error } = await supabase
       .from("user_profiles")
-      .select("email, display_name")
+      .select("*")
       .eq("id", otherUserId)
       .single();
 
     if (error) {
       console.error("Error fetching other user:", error);
-    } else {
+    } else if (data) {
       setOtherUser(data);
     }
-  };
+  }, [otherUserId]);
 
   // メッセージ履歴を取得
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     const { data, error } = await supabase
       .from("messages")
       .select("*")
@@ -59,17 +59,20 @@ export default function DirectMessageInterface({
     }
 
     // ユーザー情報をクライアントサイドで追加
-    const messagesWithUser = data?.map(message => ({
+    const messagesWithUser: MessageWithUser[] = data?.map(message => ({
       ...message,
       user: { 
         email: message.user_id === user.id 
-          ? user.email 
-          : otherUser?.email || "他のユーザー" 
+          ? user.email || ''
+          : otherUser?.email || "他のユーザー",
+        display_name: message.user_id === user.id
+          ? user.user_metadata?.display_name
+          : otherUser?.display_name
       }
     })) || [];
 
     setMessages(messagesWithUser);
-  };
+  }, [conversationId, user.id, user.email, otherUser]);
 
   // メッセージ送信
   const sendMessage = async (e: React.FormEvent) => {
@@ -104,13 +107,13 @@ export default function DirectMessageInterface({
   // 初期データの取得
   useEffect(() => {
     fetchOtherUser();
-  }, [otherUserId]);
+  }, [otherUserId]); // fetchOtherUser is stable
 
   useEffect(() => {
     if (otherUser) {
       fetchMessages();
     }
-  }, [otherUser, conversationId]);
+  }, [otherUser, conversationId]); // fetchMessages is stable
 
   // Realtime購読の設定
   useEffect(() => {
@@ -126,13 +129,16 @@ export default function DirectMessageInterface({
         },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            const newMessage = payload.new as Message;
-            const messageWithUser = {
+            const newMessage = payload.new as MessageWithUser;
+            const messageWithUser: MessageWithUser = {
               ...newMessage,
               user: { 
                 email: newMessage.user_id === user.id 
-                  ? user.email 
-                  : otherUser?.email || "他のユーザー" 
+                  ? user.email || ''
+                  : otherUser?.email || "他のユーザー",
+                display_name: newMessage.user_id === user.id
+                  ? user.user_metadata?.display_name
+                  : otherUser?.display_name
               }
             };
             setMessages((prev) => [...prev, messageWithUser]);
@@ -184,16 +190,16 @@ export default function DirectMessageInterface({
             </Link>
             <Avatar className="w-8 h-8">
               <AvatarFallback className="text-xs">
-                {getUserInitials(otherUser.email)}
+                {getUserInitials(otherUser.email || 'UN')}
               </AvatarFallback>
             </Avatar>
             <h1 className="text-lg font-semibold">
-              {otherUser.display_name || otherUser.email.split('@')[0]}
+              {otherUser.display_name || otherUser.email?.split('@')[0] || 'Unknown User'}
             </h1>
           </div>
           <div className="flex flex-1 items-center justify-end space-x-2">
             <span className="text-sm text-muted-foreground">
-              {otherUser.email}
+              {otherUser.email || 'No email'}
             </span>
           </div>
         </div>
@@ -238,7 +244,7 @@ export default function DirectMessageInterface({
                         <p className="text-sm">{message.content}</p>
                       </Card>
                       <span className="text-xs text-muted-foreground">
-                        {formatTime(message.created_at)}
+                        {formatTime(message.created_at || '')}
                       </span>
                     </div>
                   </div>

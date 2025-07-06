@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from "lucide-react";
-import { Message } from "@/lib/types/chat";
+import { MessageWithUser } from "@/lib/types/chat";
 import type { User } from "@supabase/supabase-js";
 
 interface ChatInterfaceProps {
@@ -16,14 +16,14 @@ interface ChatInterfaceProps {
 }
 
 export default function ChatInterface({ user }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageWithUser[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
   // メッセージ履歴を取得
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     const { data, error } = await supabase
       .from("messages")
       .select("*")
@@ -35,13 +35,13 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
     }
 
     // ユーザー情報をクライアントサイドで追加
-    const messagesWithUser = data?.map(message => ({
+    const messagesWithUser: MessageWithUser[] = data?.map(message => ({
       ...message,
-      user: { email: message.user_id === user.id ? user.email : "他のユーザー" }
+      user: { email: message.user_id === user.id ? user.email || '' : "他のユーザー" }
     })) || [];
 
     setMessages(messagesWithUser);
-  };
+  }, [user.id, user.email]);
 
   // メッセージ送信
   const sendMessage = async (e: React.FormEvent) => {
@@ -75,7 +75,7 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
   // 初期データの取得
   useEffect(() => {
     fetchMessages();
-  }, []);
+  }, []); // fetchMessages is stable
 
   // Realtime購読の設定
   useEffect(() => {
@@ -90,10 +90,10 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
         },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            const newMessage = payload.new as Message;
-            const messageWithUser = {
+            const newMessage = payload.new as MessageWithUser;
+            const messageWithUser: MessageWithUser = {
               ...newMessage,
-              user: { email: newMessage.user_id === user.id ? user.email : "他のユーザー" }
+              user: { email: newMessage.user_id === user.id ? user.email || '' : "他のユーザー" }
             };
             setMessages((prev) => [...prev, messageWithUser]);
           }
@@ -104,7 +104,7 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [supabase, user.id, user.email]); // Include user dependencies
 
   // 新しいメッセージが追加されたときにスクロール
   useEffect(() => {
@@ -156,7 +156,7 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
                 <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                   <span>{message.user?.email}</span>
                   <span>•</span>
-                  <span>{formatTime(message.created_at)}</span>
+                  <span>{formatTime(message.created_at || '')}</span>
                 </div>
               </div>
             </div>
