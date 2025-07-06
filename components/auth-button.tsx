@@ -12,7 +12,23 @@ export async function AuthButton() {
 
   return user ? (
     <div className="flex items-center gap-4">
-      Hey, {user.email}!
+      {user.user_metadata?.avatar_url && (
+        <img
+          src={user.user_metadata.avatar_url}
+          alt="Avatar"
+          className="h-8 w-8 rounded-full"
+        />
+      )}
+      <div className="flex flex-col">
+        {user.user_metadata?.full_name && (
+          <span className="text-sm font-medium">
+            Hey, {user.user_metadata.full_name}!
+          </span>
+        )}
+        <span className="text-xs text-muted-foreground">
+          {user.email}
+        </span>
+      </div>
       <LogoutButton />
     </div>
   ) : (
