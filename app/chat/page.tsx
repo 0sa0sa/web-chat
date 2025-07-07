@@ -19,16 +19,16 @@ export default async function ChatPage() {
   return (
     <div className="flex flex-col h-screen max-w-6xl mx-auto">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-        <div className="container max-w-4xl mx-auto px-4 flex h-14 items-center">
-          <div className="mr-4 flex items-center space-x-3">
+        <div className="container max-w-4xl mx-auto px-6 flex h-16 items-center">
+          <div className="mr-6 flex items-center space-x-4">
             <Link href="/">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="p-2">
                 <Home className="w-4 h-4" />
               </Button>
             </Link>
-            <h1 className="text-lg font-semibold">チャット</h1>
+            <h1 className="text-xl font-bold">チャット</h1>
           </div>
-          <div className="flex flex-1 items-center justify-end space-x-2">
+          <div className="flex flex-1 items-center justify-end space-x-3">
             <span className="text-sm text-muted-foreground">
               {user.email}
             </span>
@@ -36,7 +36,7 @@ export default async function ChatPage() {
         </div>
       </header>
       <main className="flex-1 overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto h-full">
           <ConversationsList user={user} />
         </div>
       </main>
